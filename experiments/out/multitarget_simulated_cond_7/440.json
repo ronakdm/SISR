@@ -1,0 +1,12 @@
+{
+  "metrics": null,
+  "setting": {
+    "lr_unmix": 0.0001,
+    "lr_model": 1e-05,
+    "lam": 0.003,
+    "seed": 0,
+    "density": "huber",
+    "optim": "sgd",
+    "cond_number": 5
+  }
+}

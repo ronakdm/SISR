@@ -1,0 +1,1 @@
+python experiments/run_joblib.py amari_distance_tensorial
