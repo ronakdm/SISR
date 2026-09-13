@@ -1,8 +1,9 @@
-# Ablation copy of ica.py with the periodic (every-1000-iteration) W-row
-# reordering-by-model-behavior-correlation step disabled, to test how much
-# that reordering contributes to source recovery / prediction accuracy.
-# Kept as a separate module (rather than editing ica.py in place) so the
-# main multi_ica implementation used by every other script is unaffected.
+# Ablation copy of sisr_algorithm.py with the periodic (every-1000-iteration)
+# W-row reordering-by-model-behavior-correlation step disabled, to test how
+# much that reordering contributes to source recovery / prediction accuracy.
+# Kept as a separate module (rather than editing sisr_algorithm.py in place)
+# so the main multi_ica implementation used by every other script is
+# unaffected.
 
 import numpy as np
 import torch
@@ -10,7 +11,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import time
 
-from multiica.utils import (
+from SISR.utils import (
     to_dict_of_lists,
     check_input,
     check_labels,
@@ -20,7 +21,7 @@ from multiica.utils import (
     OptimizationError,
 )
 
-from multiica.models import SpectrogramMLP, TimeSeriesMLP, BandMLP, SpectrogramLogVarMLP
+from SISR.models import SpectrogramMLP, TimeSeriesMLP, BandMLP, SpectrogramLogVarMLP
 
 
 def update_W(c, W, A_c, B_c, lr):

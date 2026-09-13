@@ -3,9 +3,9 @@ import time
 import numpy as np
 import torch
 
-from src.ica import multi_ica
+from src.sisr_algorithm import multi_ica
 from src.utils import OptimizationError, compute_amari_distance
-from src.ica_tensor import fobi_ica, jade_ica, fobi, jade, process_multi_trial
+from src.sisr_tensor import fobi_ica, jade_ica, fobi, jade, process_multi_trial
 from src.data import load_dataset
 from src.models import CNN, MeanNet, SpectrogramMLP
 

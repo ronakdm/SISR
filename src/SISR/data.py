@@ -11,7 +11,7 @@ from scipy.signal.windows import tukey
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
 
-from multiica.config import dataset_paths
+from SISR.config import dataset_paths
 
 ####################################
 # Auxiliary functions
