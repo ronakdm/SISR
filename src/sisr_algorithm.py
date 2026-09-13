@@ -270,33 +270,6 @@ def sisr(
                 U, S, V = torch.svd(W)
                 W = (1 - 1 / cond) * W + (1 / cond) * S[0] * U @ V.T
 
-        # ── periodic W-row reordering disabled ─────────────────────────────
-        # (reorders W's rows by model-behavior correlation every 1000
-        # iterations; commented out so the rows stay in whatever order the
-        # gradient updates put them in -- ablation showed this reordering
-        # step is not needed for source recovery / prediction accuracy)
-        # if is_supervised and labels is not None and k > 0 and k % 1000 == 0:
-        #     num_tasks = len(tasks)
-        #     scores = np.zeros((C, num_tasks))
-        #     for t_idx, model in enumerate(models):
-        #         y = labels.float()[:, t_idx]
-        #         for c_idx in range(C):
-        #             source = W[c_idx] @ x  # (N, T)
-        #             loss, _ = model(source, y)
-        #             scores[c_idx, t_idx] = -loss.item()
-        #     assigned = []
-        #     for t_idx in range(num_tasks):
-        #         available = [c for c in range(C) if c not in assigned]
-        #         best = available[int(np.argmax(scores[available, t_idx]))]
-        #         assigned.append(best)
-        #     remaining = [c for c in range(C) if c not in assigned]
-        #     new_order = assigned + remaining
-        #     W = W[new_order]
-        #     if verbose:
-        #         print(f"Iter {k}: reordered W by model-behavior correlation. Order: {new_order}")
-        #         for t_idx, c_idx in enumerate(assigned):
-        #             print(f"  Task {t_idx}: source {c_idx} (score = {scores[c_idx, t_idx]:.4f})")
-
         toc = time.time()
         elapsed += toc - tic
 
