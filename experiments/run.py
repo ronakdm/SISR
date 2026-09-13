@@ -3,7 +3,7 @@ import time
 import numpy as np
 import torch
 
-from src.sisr_algorithm import multi_ica
+from src.sisr_algorithm import sisr
 from src.utils import OptimizationError, compute_amari_distance
 from src.sisr_tensor import fobi_ica, jade_ica, fobi, jade, process_multi_trial
 from src.data import load_dataset
@@ -53,7 +53,7 @@ def run(experiment, setting):
         batch_size_samples = 128
         verbose = False
 
-        test_func = multi_ica
+        test_func = sisr
 
         try:
             output = test_func(
@@ -127,19 +127,19 @@ def run(experiment, setting):
         verbose = False
 
         try:
-            output = multi_ica(
-                x_train, 
-                density=density, 
-                lr_unmix=lr_unmix, 
-                lr_model=lr_model, 
+            output = sisr(
+                x_train,
+                density=density,
+                lr_unmix=lr_unmix,
+                lr_model=lr_model,
                 tasks=tasks,
                 models=models,
                 lam=lam,
                 labels=y_train,
-                batch_size_trials=batch_size_trials, 
-                batch_size_samples=batch_size_samples, 
+                batch_size_trials=batch_size_trials,
+                batch_size_samples=batch_size_samples,
                 weight_decay=weight_decay,
-                seed=seed, 
+                seed=seed,
                 max_iter=max_iter,
                 eval_iter=eval_iter,
                 x_test=x_test,
@@ -184,9 +184,9 @@ def run(experiment, setting):
         for unmixing_mat in result_tensorial["unmixing_matrices"]:
             amari_distances_tensorial.append(compute_amari_distance(unmixing_mat,mixing_mat))
         
-        result_multi_ica = multi_ica(x_train,
-                                    x_test=x_test, 
-                                    max_iter=max_iter, 
+        result_sisr = sisr(x_train,
+                                    x_test=x_test,
+                                    max_iter=max_iter,
                                     batch_size_trials=10,
                                     batch_size_samples=64,
                                     lr_unmix=0.1,
@@ -196,17 +196,17 @@ def run(experiment, setting):
                                     eval_iter=5,
                                     lam=0.0,
                                     tasks=None)
-        unmixing_mat_multi_ica = torch.from_numpy(result_multi_ica["unmixing_matrix"]).double()
-        amari_distance_multi_ica = compute_amari_distance(unmixing_mat_multi_ica, mixing_mat)
-        
+        unmixing_mat_sisr = torch.from_numpy(result_sisr["unmixing_matrix"]).double()
+        amari_distance_sisr = compute_amari_distance(unmixing_mat_sisr, mixing_mat)
+
         out = {
             "elapsed_tensorial": elapsed,
             "amari_distances_tensorial": amari_distances_tensorial,
-            "amari_distance_multi_ica": amari_distance_multi_ica,
-            "metrics": result_multi_ica["metrics"]
+            "amari_distance_multi_ica": amari_distance_sisr,
+            "metrics": result_sisr["metrics"]
         }
         return out
-    
+
     elif experiment == "amari_distance_tensorial_concatenation":
         method = setting["method"] 
         seed = setting["seed"]
@@ -235,9 +235,9 @@ def run(experiment, setting):
         elapsed = toc - tic
 
         amari_distances_tensorial  = [compute_amari_distance(torch.from_numpy(unmixing_mat_tensorial), mixing_mat)]
-        result_multi_ica = multi_ica(x_train_shifted,
-                                    x_test=x_test, 
-                                    max_iter=max_iter, 
+        result_sisr = sisr(x_train_shifted,
+                                    x_test=x_test,
+                                    max_iter=max_iter,
                                     batch_size_trials=10,
                                     batch_size_samples=64,
                                     lr_unmix=0.25,
@@ -247,14 +247,14 @@ def run(experiment, setting):
                                     lam=0.0,
                                     eval_iter=5,
                                     tasks=None)
-        unmixing_mat_multi_ica = torch.from_numpy(result_multi_ica["unmixing_matrix"]).double()
-        amari_distance_multi_ica = compute_amari_distance(unmixing_mat_multi_ica, mixing_mat)
-        
+        unmixing_mat_sisr = torch.from_numpy(result_sisr["unmixing_matrix"]).double()
+        amari_distance_sisr = compute_amari_distance(unmixing_mat_sisr, mixing_mat)
+
         out = {
             "elapsed_tensorial": elapsed,
             "amari_distances_tensorial": amari_distances_tensorial,
-            "amari_distance_multi_ica": amari_distance_multi_ica,
-            "metrics": result_multi_ica["metrics"]
+            "amari_distance_multi_ica": amari_distance_sisr,
+            "metrics": result_sisr["metrics"]
         }
         return out
     else:

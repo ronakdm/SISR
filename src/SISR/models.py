@@ -1110,7 +1110,7 @@ class LogVarianceSharedBinClassifierMLP(nn.Module):
 
     This exists because a real closed-form sklearn LDA (fit via class
     means/pooled covariance) has no gradient w.r.t. its input, so it cannot
-    supply the supervised gradient multi_ica's W update needs -- it can
+    supply the supervised gradient sisr's W update needs -- it can
     only be applied post-hoc to an already-fixed W (see
     neural_moab_baseline_presence_lda_comparison.py). This class trades the
     closed-form guarantee for differentiability, letting an LDA-style
@@ -1188,7 +1188,7 @@ class LogVarianceSharedBinClassifierMLP(nn.Module):
         return (log_var - mean) / (std + 1e-8)
 
     def extract_features(self, x_batch):
-        # multi_ica's training loop calls model(W[c] @ x_batch, ...) with a
+        # sisr's training loop calls model(W[c] @ x_batch, ...) with a
         # 2-D (batch, T) tensor (no explicit channel dim), while evaluation
         # code (compute_loss) passes 3-D (batch, 1, T); normalize both to
         # 3-D, matching SpectrogramSharedBinPresenceMLP's convention.
@@ -1274,7 +1274,7 @@ class LogVarianceTrialClassifierMLP(nn.Module):
         return torch.log(var + self.eps)
 
     def extract_features(self, x_batch):
-        # Normalize 2-D (batch, T) [multi_ica's training-loop call
+        # Normalize 2-D (batch, T) [sisr's training-loop call
         # convention] vs. 3-D (batch, 1, T) [evaluation convention] the same
         # way LogVarianceSharedBinClassifierMLP does.
         if x_batch.dim() == 2:

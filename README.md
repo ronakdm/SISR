@@ -21,7 +21,7 @@ Note that a GPU is not necessary to run the method on most examples, so simply i
 Below is an outline of the code repository.
 | Directory      | Description |
 | ----------- | ----------- |
-| `src`   | Source code. The full SISR algorithm is implemented via the `multi_ica` function in `sisr_algorithm.py`, used by the `experiments/` Slurm pipeline below; the `SISR/` package is a self-contained copy of the same algorithm (`SISR/SISR_no_reorder.py`) used by the notebooks in `notebooks/`. |
+| `src`   | Source code. The full SISR algorithm is implemented via the `sisr` function in `sisr_algorithm.py`, used by both the `experiments/` Slurm pipeline below and the notebooks in `notebooks/`; the models/utilities it depends on live in the `SISR/` package. |
 | `notebooks`   | Visualizations such as training curves and principal component embeddings for the micro-ECoG Reach dataset (`figure_reach.ipynb`) and the simulated datasets (`figure_baselines.ipynb`, `figure_nonconvex.ipynb`), plus the arxiv manuscript's supervision-effect and EEG motor-imagery benchmark figures (`figure4_effect_of_supervision.ipynb`, `figure5_eeg_motor_imagery_benchmark.ipynb`). |
 | `experiments`   | Code for running experiments (whose individual logic is written in `run.py`) on a Slurm cluster (see `run_array.sbatch`). |
 | `data`   |  Includes simulation data and real data from six IOS Reach experimental days. |
@@ -47,7 +47,7 @@ tasks = ["regression"] * n_tasks
 ```
 For a minimal example with default values, you may run the following. Note that for any supervised task, one must specify the supervised models (which are of type `nn.Module` from PyTorch). For fully unsupervised tasks (`lam=0.0`) you may simply use `models=None` and `tasks=None`.
 ```
-from src.sisr_algorithm import multi_ica
+from src.sisr_algorithm import sisr
 from src.models import SpectrogramMLP
 
 batch_size_trials=64 
@@ -55,7 +55,7 @@ batch_size_samples=64
 
 models = [SpectrogramMLP("regression", 1, 26, 41, None) for _ in range(n_tasks)]
 
-output = multi_ica(
+output = sisr(
     x_train, 
     labels=y_train,
     batch_size_trials=batch_size_trials, 
@@ -67,7 +67,7 @@ output = multi_ica(
 ```
 For greater control over the hyperparameters, see the more detailed example below.
 ```
-from src.sisr_algorithm import multi_ica
+from src.sisr_algorithm import sisr
 from src.models import SpectrogramMLP
 
 W_init = None       # initial value for unmixing matrix
@@ -86,7 +86,7 @@ batch_size_samples = 64
 max_iter = 5000
 eval_iter = 500
 
-output = multi_ica(
+output = sisr(
     x_train, 
     density=density, 
     lr_unmix=lr_unmix, 
