@@ -1,0 +1,11 @@
+# Cached/intermediate notebook outputs (SISR fit results, per-subject EEG data,
+# intermediate figures) -- these get large (1GB+) and every fit_*/load_* helper
+# in the figure4/figure5 notebooks already regenerates its own cache on a
+# cache miss. Rather than ship any of it, a fresh clone is expected to
+# re-run the notebooks and regenerate everything locally.
+notebooks/output/
+
+# OS/editor junk
+.DS_Store
+__pycache__/
+*.pyc
