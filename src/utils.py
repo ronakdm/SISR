@@ -1,7 +1,7 @@
 import itertools
 import torch
 import numpy as np
-from sklearn.metrics import r2_score
+from sklearn.metrics import r2_score, mean_squared_error
 
 class OptimizationError(Exception):
     def __init__(self, message):
@@ -91,12 +91,16 @@ def compute_loss(W, x, G_func, models, lam, labels, tasks, weight_decay):
     if lam > 0.0:
         for model_id, model in enumerate(models):
             task = tasks[model_id]
-            loss, y_pred = model(W[model_id] @ x, labels[:, model_id])
+            #loss, y_pred = model(W[model_id] @ x, labels[:, model_id])
+            x_src = torch.einsum('c,bct->bt', W[model_id], x)  # (B, T)
+            x_src = x_src.unsqueeze(1)                                # (B, 1, T)
+            loss, y_pred = model(x_src, labels[:, model_id])
             if task == "classification":
                 accuracy.append((torch.argmax(y_pred, dim=1) == labels[:, model_id]).float().mean().item())
             elif task == "regression":
-                accuracy.append(r2_score(labels[:, model_id].numpy(), y_pred.numpy(), multioutput='variance_weighted'))
-
+                #accuracy.append(r2_score(labels[:, model_id].numpy(), y_pred.numpy(), multioutput='variance_weighted'))
+                accuracy.append(mean_squared_error(labels[:, model_id].numpy(), y_pred.numpy()))
+    
             sup_term += lam * (loss.item() + 0.5 * weight_decay * get_l2_norm_squared(model).item())
 
     return unsup_term, sup_term, accuracy
@@ -111,7 +115,8 @@ def evaluate(k, W, x_train, x_test, G_func, models, mixing_mat, tasks, elapsed, 
         "lr_unmix": lr_unmix,
         "lr_model": lr_model,
         "elapsed": elapsed,
-        "iterations": k
+        "iterations": k,
+        "W": W.detach().clone(),
     }
     for t, acc in enumerate(train_accs):
         out[f"train_accuracy_task_{t}"] = acc

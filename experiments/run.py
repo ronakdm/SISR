@@ -39,11 +39,11 @@ def run(experiment, setting):
         optim = setting["optim"]
 
         models = [
-            SpectrogramMLP("regression", 1, 26, 41, None),
-            SpectrogramMLP("regression", 1, 26, 41, None),
-            SpectrogramMLP("regression", 1, 26, 41, None),
-            SpectrogramMLP("regression", 1, 26, 41, None),
-            SpectrogramMLP("regression", 1, 26, 41, None),
+            SpectrogramMLP("regression", 1, n_timepoints=T),
+            SpectrogramMLP("regression", 1, n_timepoints=T),
+            SpectrogramMLP("regression", 1, n_timepoints=T),
+            SpectrogramMLP("regression", 1, n_timepoints=T),
+            SpectrogramMLP("regression", 1, n_timepoints=T),
         ]
         models = models[:n_tasks]
 
@@ -116,8 +116,8 @@ def run(experiment, setting):
         optim = setting["optim"]
 
         models = [
-            SpectrogramMLP(tasks[0], 1, 26, 81, n_classes=len(np.unique(y_train[:, 0])), n_layers=setting["n_layers"]),
-            SpectrogramMLP(tasks[1], 1, 26, 81, n_classes=len(np.unique(y_train[:, 1])), n_layers=setting["n_layers"]),
+            SpectrogramMLP(tasks[0], 1, n_timepoints=T, n_classes=len(np.unique(y_train[:, 0])), n_layers=setting["n_layers"]),
+            SpectrogramMLP(tasks[1], 1, n_timepoints=T, n_classes=len(np.unique(y_train[:, 1])), n_layers=setting["n_layers"]),
         ]
 
         max_iter = 5000

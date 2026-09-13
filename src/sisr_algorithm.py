@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 import time
 
-from src.SISR.utils import (
+from src.utils import (
     to_dict_of_lists,
     check_input,
     check_labels,
@@ -14,7 +14,7 @@ from src.SISR.utils import (
     OptimizationError,
 )
 
-from src.SISR.models import SpectrogramMLP, TimeSeriesMLP, BandMLP, SpectrogramLogVarMLP
+from src.models import SpectrogramMLP, TimeSeriesMLP, BandMLP, SpectrogramLogVarMLP
 
 
 def update_W(c, W, A_c, B_c, lr):

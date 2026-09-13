@@ -1,5 +1,5 @@
 # SISR
-Stochastic algorithms for multi-trial, supervised independent component analysis. SISR (Supervised Independent Source Recovery) is the name of the core algorithm, implemented in the `src/sisr_algorithm.py` module and, in a form condensed for the notebooks in this repo, the `src/SISR` package.
+Stochastic algorithms for multi-trial, supervised independent component analysis. SISR (Supervised Independent Source Recovery) is the name of the core algorithm, implemented in the `src/sisr_algorithm.py` module.
 
 
 ## Dependencies
@@ -21,7 +21,7 @@ Note that a GPU is not necessary to run the method on most examples, so simply i
 Below is an outline of the code repository.
 | Directory      | Description |
 | ----------- | ----------- |
-| `src`   | Source code. The full SISR algorithm is implemented via the `sisr` function in `sisr_algorithm.py`, used by both the `experiments/` Slurm pipeline below and the notebooks in `notebooks/`; the models/utilities it depends on live in the `SISR/` package. |
+| `src`   | Source code. The full SISR algorithm is implemented via the `sisr` function in `sisr_algorithm.py`, used by both the `experiments/` Slurm pipeline below and the notebooks in `notebooks/`, along with the models (`models.py`), data loaders (`data.py`), and utilities (`utils.py`) it depends on. |
 | `notebooks`   | Visualizations such as training curves and principal component embeddings for the micro-ECoG Reach dataset (`figure_reach.ipynb`) and the simulated datasets (`figure_baselines.ipynb`, `figure_nonconvex.ipynb`), plus the arxiv manuscript's supervision-effect and EEG motor-imagery benchmark figures (`figure4_effect_of_supervision.ipynb`, `figure5_eeg_motor_imagery_benchmark.ipynb`). |
 | `experiments`   | Code for running experiments (whose individual logic is written in `run.py`) on a Slurm cluster (see `run_array.sbatch`). |
 | `data`   |  Includes simulation data and real data from six IOS Reach experimental days. |
