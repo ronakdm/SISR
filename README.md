@@ -172,7 +172,7 @@ This section explains how to regenerate everything the `notebooks/figure_*.ipynb
 
 **None of this data is included in the repo.** `experiments/out/` and `notebooks/output/` are both gitignored — a fresh clone has no cached results at all, and every notebook/script below regenerates its own cache from scratch (subsequent runs are fast no-ops as long as that cache still exists).
 
-The time estimates below were measured by timing `sisr()` directly with each pipeline's actual model/data configuration (30 iterations each, single-threaded per fit) on a 12-core CPU machine, then extrapolating to the full iteration/fit counts — they scale roughly with `(total fits) / (CPU cores available)`, so expect proportionally more or less time on different hardware. Treat them as order-of-magnitude planning numbers, not guarantees.
+The time estimates below were measured by timing `sisr()` directly with each pipeline's actual model/data configuration (30 iterations each, single-threaded per fit) on a 12-core CPU machine, then extrapolating to the full iteration/fit counts — they scale roughly with `(total fits) / (CPU cores available)`, so expect proportionally more or less time on different hardware. Treat them as order-of-magnitude planning numbers, not guarantees. The two notebook times further down are instead measured from a full run; that run took roughly 3–6× longer than this extrapolation method had predicted for them, so budget generously for the `experiments/out/` keys too.
 
 ### `experiments/out/` (backs `figure_baselines.ipynb`, `figure_nonconvex.ipynb`)
 
@@ -206,7 +206,18 @@ Approximate time to regenerate each key from scratch (12-core CPU machine, `run_
 
 These two notebooks generate/fetch their own input data and fit everything themselves — there's no separate script to run, just execute the notebook top to bottom. Every `fit_*`/`load_*` helper checks its own cache first (`retrain=False` by default), so a partial or interrupted run only redoes what's missing next time.
 
-- **`figure_effect_of_supervision.ipynb`**: generates its simulated "neural-like" dataset in-notebook (no download needed), then runs at least ~77 supervised `sisr()` fits at 10,000 iterations each (a fixed 3-combo + 73-combo grid sweep), plus up to ~216 more in the worst case from an adaptive 3-stage warm-start chain that only retries combos that diverged. **Estimated: roughly 4–14 hours** on a 12-core machine, depending on how many combos need warm-start retries.
-- **`figure_eeg_motor_imagery_benchmark.ipynb`**: fetches real BNCI2014_001 EEG data via MOABB (see the separate `moab` environment setup under Dependencies above; this step itself is comparatively quick), then runs a fixed 45 (subject, seed) combos at 30,000 iterations each. **Estimated: roughly 9 hours** on a 12-core machine for the fits alone.
+- **`figure_effect_of_supervision.ipynb`**: generates its simulated "neural-like" dataset in-notebook (no download needed), then runs at least ~77 supervised `sisr()` fits at 10,000 iterations each (a fixed 3-combo + 73-combo grid sweep), plus up to ~216 more in the worst case from an adaptive 3-stage warm-start chain that only retries combos that diverged. **Measured: ~41 hours** end to end (see the hardware note below); this varies with how many combos need warm-start retries.
+- **`figure_eeg_motor_imagery_benchmark.ipynb`**: fetches real BNCI2014_001 EEG data via MOABB (see the separate `moab` environment setup under Dependencies above; this step itself is comparatively quick), then runs a fixed 45 (subject, seed) combos at 30,000 iterations each. **Measured: ~54 hours** end to end (see the hardware note below), almost all of it in the SISR fits; the CSP/TangentSpace baselines take only a few minutes.
 
-Both notebooks parallelize their fits across all available CPU cores via `joblib.Parallel` (`n_jobs=-1`), so wall time drops roughly proportionally on a machine with more cores (and rises on one with fewer).
+These times are from one full from-scratch run of both notebooks (Sep 29 – Oct 1, 2026) on the following machine; the time estimates depend on it:
+
+| Component | Spec used |
+| --- | --- |
+| CPU | AMD Ryzen 7 3700X, 8 physical / 16 logical cores, 3.6 GHz base |
+| RAM | 32 GB (the two runs together used ~9 GB, with ~10 GB still free, about 30 minutes into the fits; peak use over the whole run wasn't recorded) |
+| GPU | Not used. The machine has an NVIDIA GTX 1050 Ti (4 GB), but the runs used CPU-only PyTorch, so every fit ran on the CPU |
+| OS | Windows 10 Enterprise |
+| Software | Python 3.11.16, PyTorch 2.14.0 (CPU build), NumPy 1.26.4, joblib 1.6.0, MNE 1.12.1, pyRiemann 0.7 (the latest pyRiemann needs NumPy 2) |
+| Parallelism | Both notebooks ran at the same time, each limited to 8 joblib workers (`LOKY_MAX_CPU_COUNT=8`), so together they used all 16 logical cores. Each worker was single-threaded (`OMP_NUM_THREADS=1`, which the notebooks set themselves) |
+
+Each 30,000-iteration EEG fit took ~9–10.5 hours and each 10,000-iteration supervision fit ~1–1.7 hours under that load. The times depend mainly on the number of physical CPU cores and how fast each one is. Running the two notebooks one after the other instead should take about the same total time, since the CPU is fully used either way. Both notebooks parallelize their fits across all available CPU cores via `joblib.Parallel` (`n_jobs=-1`), so wall time drops roughly proportionally on a machine with more physical cores (and rises on one with fewer).
